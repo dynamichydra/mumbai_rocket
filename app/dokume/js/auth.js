@@ -27,6 +27,9 @@
       id: (authConfig && authConfig.id) ? authConfig.id : null,
       ph: (authConfig && authConfig.ph) ? authConfig.ph : null,
       status: (authConfig && authConfig.status) ? authConfig.status : null,
+      type: (authConfig && authConfig.type) ? authConfig.type : null,
+      login_time: (authConfig && authConfig.login_time) ? authConfig.login_time : null,
+      change_pwd: (authConfig && authConfig.change_pwd) ? authConfig.change_pwd : null,
       user: (authConfig && authConfig.user) ? authConfig.user : null
     };
 
@@ -51,6 +54,8 @@
           type: data.MESSAGE.type,
           ph: data.MESSAGE.ph,
           status: data.MESSAGE.status,
+          login_time: data.MESSAGE.login_time,
+          change_pwd: data.MESSAGE.change_pwd,
           user: encodeURIComponent(data.MESSAGE.name)
         };
 

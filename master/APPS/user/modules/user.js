@@ -250,8 +250,7 @@
       
       backendSource.saveObject('user', id, {
         name: $('.uName').val(),
-        ph: $('.uPh').val(),
-        type: $('.uType').val(),
+        
         percentage: $('.uPer').val(),
         email: $('.uEmail').val()
       }, function (data) {
@@ -335,13 +334,7 @@
   function userPopup(){
     const uid = $(this).attr('data-editid');
     const user = users.find((e)=>{return e.id==uid});
-    let opt = ``, trigger = 0;;
-    for(let i in uType){
-      if(trigger ==1){
-        opt += `<option ${(user && user.type==uType[i]?'selected':'')} value="${uType[i]}">${uType[i]}</option>`;
-      }
-      if(uType[i] == auth.config.type){trigger=1;}
-    }
+    let uType = auth.config.type=='admin'?'master':(auth.config.type=='master'?'super':(auth.config.type=='super'?'distributer':'user'));
 
     $(`#sitePopup`).html(`<div class="popup-content">
         <span class="close" id="closePopup">&times;</span>
@@ -355,8 +348,12 @@
             </div>
             <div class="col-4 mt-3">User Name</div>
             <div class="col-8 mt-3 input-container">
-              <input type="text" class="uPh" value="${user?user.ph:''}"/>
+            ${user?`
+            <b>${user.ph}</b>
+              `:`
+              <input type="text" class="uPh" value=""/>
               <i class="bi bi-person"></i>
+              `}
             </div>
             <div class="col-4 mt-3">Phone</div>
             <div class="col-8 mt-3 input-container">
@@ -365,10 +362,13 @@
             </div>
             <div class="col-4 mt-3">Type</div>
             <div class="col-8 mt-3 input-container">
-              <select class="uType">
-              ${opt}
-              </select>
+            ${user?`
+            <b>${user.type}</b>
+            `:`
+            <input type="text" class="uType" value="${uType}" readonly/>
+              
               <i class="bi bi-person"></i>
+            `}
             </div>
             <div class="col-4 mt-3 typePCT" ${(user && user.type=='user') || auth.config.type =='distributer'?'style="display:none;"':''}>Percentage</div>
             <div class="col-8 mt-3 input-container typePCT" ${(user && user.type=='user') || auth.config.type =='distributer'?'style="display:none;"':''}>

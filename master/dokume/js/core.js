@@ -141,6 +141,7 @@ var DM_CORE = (function () {
     
     backendSource.customRequest('auth', null, {
       token: auth.config.token,
+      ph: auth.config.ph,
       grant_type: 'check'
     }, function (data) {
       el('dmLoadingDIV').style.display = 'none';
@@ -166,6 +167,8 @@ var DM_CORE = (function () {
         ph: data.MESSAGE.ph,
         status: data.MESSAGE.status,
         percentage: data.MESSAGE.percentage,
+        login_time: data.MESSAGE.login_time,
+        change_pwd: data.MESSAGE.change_pwd,
         user: encodeURIComponent(data.MESSAGE.name)
       };
 

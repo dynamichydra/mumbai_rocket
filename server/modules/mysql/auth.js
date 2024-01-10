@@ -41,6 +41,8 @@ exports.init = {
                     type: user.MESSAGE[0].type,
                     name: user.MESSAGE[0].name,
                     percentage: user.MESSAGE[0].percentage,
+                    login_time: user.MESSAGE[0].login_time,
+                    change_pwd: user.MESSAGE[0].change_pwd,
                     ph: user.MESSAGE[0].ph,
                     status: user.MESSAGE[0].status
                   }});
@@ -102,7 +104,8 @@ exports.init = {
           }else if(data.grant_type == 'check'){
             if(data.token && data.token != '' && data.token != null){
               let user = await commonObj.getData('user', {where:[
-                {key:"access_token",operator:"is", value:data.token}
+                {key:"access_token",operator:"is", value:data.token},
+                {key:"ph",operator:"is", value:data.ph}
               ]});
               if(user.SUCCESS && user.MESSAGE.length>0){
                 let time = Math.floor(Date.now() / 1000);
@@ -121,6 +124,8 @@ exports.init = {
                     percentage: user.MESSAGE[0].percentage,
                     ph: user.MESSAGE[0].ph,
                     status: user.MESSAGE[0].status,
+                    login_time: user.MESSAGE[0].login_time,
+                    change_pwd: user.MESSAGE[0].change_pwd,
                     name: user.MESSAGE[0].name
                   }});
                 }
@@ -152,7 +157,8 @@ exports.init = {
               if(user.SUCCESS){
                 const nPwd = _.base64UrlEncode(_.secretKey+data.nPwd);
                 let t = await commonObj.setData('user', {id:data.id, 
-                  pwd:nPwd
+                  pwd:nPwd,
+                  change_pwd:1
                 });
                 result({SUCCESS:true,MESSAGE:'Password changed successfully!'});
               }else{

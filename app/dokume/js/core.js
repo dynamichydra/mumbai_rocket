@@ -142,6 +142,7 @@ var DM_CORE = (function () {
     console.log(auth)
     backendSource.customRequest('auth', null, {
       token: auth.config.token,
+      ph: auth.config.ph,
       grant_type: 'check'
     }, function (data) {
       console.log(data)
@@ -166,6 +167,8 @@ var DM_CORE = (function () {
         type: data.MESSAGE.type,
         ph: data.MESSAGE.ph,
         status: data.MESSAGE.status,
+        login_time: data.MESSAGE.login_time,
+        change_pwd: data.MESSAGE.change_pwd,
         user: encodeURIComponent(data.MESSAGE.name)
       };
 

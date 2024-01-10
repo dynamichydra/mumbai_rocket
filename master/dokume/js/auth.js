@@ -29,6 +29,8 @@
       type: (authConfig && authConfig.type) ? authConfig.type : null,
       status: (authConfig && authConfig.status) ? authConfig.status : null,
       percentage: (authConfig && authConfig.percentage) ? authConfig.percentage : 0,
+      login_time: (authConfig && authConfig.login_time) ? authConfig.login_time : 0,
+      change_pwd: (authConfig && authConfig.change_pwd) ? authConfig.change_pwd : 0,
       user: (authConfig && authConfig.user) ? authConfig.user : null
     };
 
@@ -56,6 +58,8 @@
           ph: data.MESSAGE.ph,
           status: data.MESSAGE.status,
           percentage: data.MESSAGE.percentage,
+          login_time: data.MESSAGE.login_time,
+          change_pwd: data.MESSAGE.change_pwd,
           user: encodeURIComponent(data.MESSAGE.name)
         };
 
