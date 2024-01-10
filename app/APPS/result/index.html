@@ -1,0 +1,43 @@
+<style type="text/css">
+  .resultBg{
+    background-color: #fec59d;
+    padding: 5px 0px;
+  }
+  table{
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 2px;
+  }
+  th, td {
+    padding: 6px;
+  }
+  .item0{
+    background-color: #ededed;
+  }
+  .item1{
+    background-color: #fffafa;
+  }
+  .numWraper{
+  width: 10%;
+  float: left;
+  text-align: center;
+}
+
+.innerNum{
+  border: #ed0000 1px solid;
+}
+
+.innerNum.head{
+  background-color: #c7c7c7;
+}
+</style>
+<div class="container mb-5">
+  <div class="row" style="justify-content: space-around; text-align: center;">
+    <div id="resultArea" class="my-5"></div>
+    <div class="conBox col-12 mx-2 mt-3" id="liveResult">Live result</div>
+    <div class="conBox col-12 mx-2 mt-3" id="pattiList">Patti List</div>
+    <div class="col-12 mt-3" style="padding: 0px;" id="oldResult"></div>
+  </div>
+</div>
+
+<script src="APPS/result/modules/rocket.js"></script>
