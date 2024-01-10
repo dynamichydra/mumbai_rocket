@@ -284,17 +284,17 @@
     if(selectedGameType == 'single' && parseInt(amt)>5000){
       DM_TEMPLATE.showSystemNotification(0, `Maximum bet amount is 5000 for Single.`);
       return;
-    }else if(selectedGameType != 'single' && parseInt(amt)>50){
+    }else if(selectedGameType != 'single' && parseInt(amt)>100){
       DM_TEMPLATE.showSystemNotification(0, `Maximum bet amount is 50 for Patti.`);
       return;
     }
 
     let timeRemain = $('#gameHead').find('.secStore').attr('data-src');
     if(parseInt(timeRemain) < 600){
-      if(selectedGameType == 'single' && parseInt(amt)>100){
+      if(selectedGameType == 'single' && parseInt(amt)>500){
         DM_TEMPLATE.showSystemNotification(0, `Maximum bet amount is 100 for Single.`);
         return;
-      }else if(selectedGameType != 'single' && parseInt(amt)>10){
+      }else if(selectedGameType != 'single' && parseInt(amt)>30){
         DM_TEMPLATE.showSystemNotification(0, `Maximum bet amount is 10 for Patti.`);
         return;
       }
@@ -349,7 +349,7 @@
       DM_TEMPLATE.showSystemNotification(0, `Maximum bet amount is 5000 for Single.`);
       DM_TEMPLATE.showBtnLoader(elq('.pattiAddSaveBtn'), false);
       return;
-    }else if(selectedGameType != 'single' && parseInt(amt)>50){
+    }else if(selectedGameType != 'single' && parseInt(amt)>100){
       DM_TEMPLATE.showSystemNotification(0, `Maximum bet amount is 50 for Patti.`);
       DM_TEMPLATE.showBtnLoader(elq('.pattiAddSaveBtn'), false);
       return;
@@ -357,11 +357,11 @@
 
     let timeRemain = $('#gameHead').find('.secStore').attr('data-src');
     if(parseInt(timeRemain) < 600){
-      if(selectedGameType == 'single' && parseInt(amt)>100){
+      if(selectedGameType == 'single' && parseInt(amt)>500){
         DM_TEMPLATE.showSystemNotification(0, `Maximum bet amount is 100 for Single.`);
         DM_TEMPLATE.showBtnLoader(elq('.pattiAddSaveBtn'), false);
         return;
-      }else if(selectedGameType != 'single' && parseInt(amt)>10){
+      }else if(selectedGameType != 'single' && parseInt(amt)>30){
         DM_TEMPLATE.showSystemNotification(0, `Maximum bet amount is 10 for Patti.`);
         DM_TEMPLATE.showBtnLoader(elq('.pattiAddSaveBtn'), false);
         return;

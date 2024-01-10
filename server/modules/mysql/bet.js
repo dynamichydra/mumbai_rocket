@@ -53,7 +53,7 @@ exports.init = {
               let amtLmt = await commonObj.customSQL("SELECT sum(amt) amt FROM `rocket_bet` WHERE number="+data.bet[i].n+" AND game_id ="+data.game_id+" AND user_id="+user.id+" AND type = '"+data.type+"'");
               console.log("SELECT sum(amt) amt FROM `rocket_bet` WHERE number="+data.bet[i].n+" AND game_id ="+data.game_id+" AND user_id="+user.id+" AND type = '"+data.type+"'");
               console.log(amtLmt.MESSAGE[0]);
-              let bajiLimit = data.type=='Patti'?50:2000;
+              let bajiLimit = data.type=='Patti'?100:5000;
               
               const service = 0;
               const amt = parseFloat(data.bet[i].a) - service;
