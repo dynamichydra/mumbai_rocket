@@ -77,6 +77,7 @@
       fdate: (fdate && fdate != '' ? fdate : ''),
       tdate: (tdate && tdate != '' ? tdate : ''),
       pType: cType,
+      gName :$('#gameBaji').val(),
       pId: cUser,
       grant_type: 'pl'
     }, function (data) {

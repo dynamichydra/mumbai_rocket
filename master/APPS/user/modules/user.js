@@ -242,6 +242,13 @@
       transStatus =0;
       return false;
     }
+    let pct = parseInt($('.uPer').val());
+    let uPct = auth.config.type=='admin'?100: parseInt(auth.config.percentage);
+    if(pct <0 || pct >uPct){
+      DM_TEMPLATE.showSystemNotification(0, 'Percentage should be in between 0 and '+uPct);
+      transStatus =0;
+      return false;
+    }
     DM_TEMPLATE.showBtnLoader(elq('.saveBtn'), true);
     transStatus =1;
     let id = $('.uId').val();
@@ -251,7 +258,7 @@
       backendSource.saveObject('user', id, {
         name: $('.uName').val(),
         
-        percentage: $('.uPer').val(),
+        percentage: pct,
         email: $('.uEmail').val()
       }, function (data) {
         if(data.SUCCESS){
@@ -284,7 +291,7 @@
         email: $('.uEmail').val(),
         pwd: $('.uPwd').val(),
         type: $('.uType').val(),
-        percentage: $('.uPer').val(),
+        percentage: pct,
         pid: auth.config.id,
         grant_type: 'register'
       }, function (data) {
@@ -372,7 +379,7 @@
             </div>
             <div class="col-4 mt-3 typePCT" ${(user && user.type=='user') || auth.config.type =='distributer'?'style="display:none;"':''}>Percentage</div>
             <div class="col-8 mt-3 input-container typePCT" ${(user && user.type=='user') || auth.config.type =='distributer'?'style="display:none;"':''}>
-              <input type="number" class="uPer" value="${user?user.percentage:0}"/>
+              <input type="number" class="uPer" min="0" max="100" value="${user?user.percentage:0}"/>
               <i class="bi bi-percent"></i>
             </div>
             <div class="col-4 mt-3">Password</div>

@@ -114,21 +114,25 @@ exports.init = {
                 cnd += ` AND (R.bdate BETWEEN '${fDate}' AND '${tDate}')`;
               }
 
+              if(data.gName && data.gName != ''){
+                cnd += ` AND G.name= '${data.gName}' `;
+              }
+
               if(data.pType == 'admin'){
-                sql = "(SELECT SUM(amt) amt,SUM(price) price, U1.ph u1name, U1.id u1id, U1.type u1type ,U2.ph u2name, U2.id u2id, U2.type u2type ,U3.ph u3name, U3.id u3id, U3.type u3type,U4.ph u4name, U4.id u4id, U4.type u4type  FROM `rocket_bet` AS R INNER JOIN `user` U1 ON U1.id = R.user_id LEFT JOIN `user` U2 ON U1.pid = U2.id LEFT JOIN `user` U3 ON U2.pid = U3.id LEFT JOIN `user` U4 ON U3.pid = U4.id "+cnd+" GROUP BY U1.id)";
+                sql = "(SELECT SUM(amt) amt,SUM(price) price, U1.ph u1name, U1.id u1id, U1.type u1type ,U2.ph u2name, U2.id u2id, U2.type u2type ,U3.ph u3name, U3.id u3id, U3.type u3type,U4.ph u4name, U4.id u4id, U4.type u4type  FROM `rocket_bet` AS R INNER JOIN game_inplay G ON G.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id LEFT JOIN `user` U2 ON U1.pid = U2.id LEFT JOIN `user` U3 ON U2.pid = U3.id LEFT JOIN `user` U4 ON U3.pid = U4.id "+cnd+" GROUP BY U1.id)";
                 
               }else{
                 // sql = "(SELECT R.*, U1.name, U1.ph, U2.name pname, GM.name gname FROM `rocket_bet` AS R INNER JOIN `game_inplay` AS GM ON GM.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id INNER JOIN `user` U2 ON U1.pid = U2.id "+cnd+" AND U2.id ="+data.pId+" ORDER BY R.id DESC)";
-                sql = "(SELECT SUM(amt) amt,SUM(price) price, U1.ph u1name, U1.id u1id, U1.type u1type ,U2.ph u2name, U2.id u2id, U2.type u2type, null u3name, null u3id,null u3type,null , null,null   FROM `rocket_bet` AS R INNER JOIN `user` U1 ON U1.id = R.user_id LEFT JOIN `user` U2 ON U1.pid = U2.id  "+cnd+" AND U2.id ="+data.pId+" GROUP BY U1.id)";
+                sql = "(SELECT SUM(amt) amt,SUM(price) price, U1.ph u1name, U1.id u1id, U1.type u1type ,U2.ph u2name, U2.id u2id, U2.type u2type, null u3name, null u3id,null u3type,null , null,null   FROM `rocket_bet` AS R INNER JOIN game_inplay G ON G.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id LEFT JOIN `user` U2 ON U1.pid = U2.id  "+cnd+" AND U2.id ="+data.pId+" GROUP BY U1.id)";
                 if(data.pType != 'distributer'){
                   sql += " UNION ";
                   // sql += "(SELECT R.*, U1.name, U1.ph, U2.name pname, GM.name gname FROM `rocket_bet` AS R INNER JOIN `game_inplay` AS GM ON GM.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id INNER JOIN `user` U2 ON U1.pid = U2.id "+cnd+" AND U2.pid ="+data.pId+" ORDER BY R.id DESC)";
-                  sql += "(SELECT SUM(amt) amt,SUM(price) price, U1.ph u1name, U1.id u1id, U1.type u1type ,U2.ph u2name, U2.id u2id, U2.type u2type ,U3.ph u3name, U3.id u3id, U3.type u3type,null, null,null  FROM `rocket_bet` AS R INNER JOIN `user` U1 ON U1.id = R.user_id LEFT JOIN `user` U2 ON U1.pid = U2.id LEFT JOIN `user` U3 ON U2.pid = U3.id "+cnd+" AND U3.id ="+data.pId+" GROUP BY U2.id)";
+                  sql += "(SELECT SUM(amt) amt,SUM(price) price, U1.ph u1name, U1.id u1id, U1.type u1type ,U2.ph u2name, U2.id u2id, U2.type u2type ,U3.ph u3name, U3.id u3id, U3.type u3type,null, null,null  FROM `rocket_bet` AS R INNER JOIN game_inplay G ON G.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id LEFT JOIN `user` U2 ON U1.pid = U2.id LEFT JOIN `user` U3 ON U2.pid = U3.id "+cnd+" AND U3.id ="+data.pId+" GROUP BY U2.id)";
     
                   if(data.pType != 'super'){
                     sql += " UNION ";
                     // sql += "(SELECT R.*, U1.name, U1.ph, U2.name pname, GM.name gname FROM `rocket_bet` AS R INNER JOIN `game_inplay` AS GM ON GM.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id INNER JOIN `user` U2 ON U1.pid = U2.id INNER JOIN `user` U3 ON U2.pid = U3.id "+cnd+" AND U3.pid ="+data.pId+" ORDER BY R.id DESC)";
-                    sql += "(SELECT SUM(amt) amt,SUM(price) price, U1.ph u1name, U1.id u1id, U1.type u1type ,U2.ph u2name, U2.id u2id, U2.type u2type ,U3.ph u3name, U3.id u3id, U3.type u3type,U4.ph u4name, U4.id u4id, U4.type u4type  FROM `rocket_bet` AS R INNER JOIN `user` U1 ON U1.id = R.user_id LEFT JOIN `user` U2 ON U1.pid = U2.id LEFT JOIN `user` U3 ON U2.pid = U3.id LEFT JOIN `user` U4 ON U3.pid = U4.id "+cnd+" AND U4.id ="+data.pId+" GROUP BY U3.id)";
+                    sql += "(SELECT SUM(amt) amt,SUM(price) price, U1.ph u1name, U1.id u1id, U1.type u1type ,U2.ph u2name, U2.id u2id, U2.type u2type ,U3.ph u3name, U3.id u3id, U3.type u3type,U4.ph u4name, U4.id u4id, U4.type u4type  FROM `rocket_bet` AS R INNER JOIN game_inplay G ON G.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id LEFT JOIN `user` U2 ON U1.pid = U2.id LEFT JOIN `user` U3 ON U2.pid = U3.id LEFT JOIN `user` U4 ON U3.pid = U4.id "+cnd+" AND U4.id ="+data.pId+" GROUP BY U3.id)";
                 
                   }
                 }
