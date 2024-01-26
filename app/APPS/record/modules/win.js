@@ -10,6 +10,7 @@
     const formattedDate = today.toISOString().split('T')[0];
     $('#fDate').val(formattedDate);
     $('#tDate').val(formattedDate);
+    getGameType();
     bindEvents();
   }
 
@@ -17,23 +18,37 @@
     $('.searchUser').on('click',getMyBet);
   }
 
+  function getGameType(){
+    $('#gameName').html('');
+    backendSource.getObject('game', null, {where:[
+      {'key':'status','operator':'is','value':1}
+    ]}, function (data) {
+      data.MESSAGE.map(e=>{
+        $('#gameName').append(`
+          <option value="${e.code}">${e.name}</option>
+        `);
+      });
+    });
+  }
+
   function getMyBet(){
     DM_TEMPLATE.showBtnLoader(elq('.searchUser'), true);
     let fdate = $('#fDate').val();
     let tdate = $('#tDate').val();
+    let gameCode = $('#gameName').val();
     let cnd = [
       {'key':'user_id','operator':'is','value':auth.config.id},
-      {'key':'rocket_bet##status','operator':'is','value':1},
+      {'key':gameCode+'##status','operator':'is','value':1},
     ];
     if(fdate && fdate !='' && tdate && tdate != ''){
       cnd.push({'key':'bdate','operator':'higher-equal','value':moment(fdate).format('YYYY-MM-DD')+" 00:00:00"})
       cnd.push({'key':'bdate','operator':'lower-equal','value':moment(tdate).format('YYYY-MM-DD')+" 23:59:59"})
     }
-    backendSource.getObject('rocket_bet', null, {
+    backendSource.getObject(gameCode, null, {
       where:cnd,
-      order:{'by':'id','type':'DESC'},
+      order:{'by':'bdate','type':'DESC'},
       reference:[{obj:'game_inplay',a:'id',b:'game_id'}],
-      select:"name,rocket_bet.*"
+      select:"name,"+gameCode+".*"
       }, function (data) {
         if(data.SUCCESS){
           let htm = ``;
@@ -42,11 +57,11 @@
               let bgColor = item.status ==1? 'style="background-color: #a9ffb6;"':'';
 
               htm += `<tr ${bgColor}>
-              <td scope="col">${item.id}</td>
               <td scope="col">${item.name}</br>${'2'+item.game_id.toString().padStart(5, "0")}</td>
               <td scope="col">${moment(item.bdate).format('DD.MMM.YYYY H:mm')}</td>
               <td scope="col">${item.type}</br>${item.number??''}</td>
               <td scope="col">${item.amt}</br>${item.price}</td>
+              <td scope="col">${item.id}</td>
             </tr>`;
             }
           }else{

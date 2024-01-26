@@ -218,13 +218,16 @@ var DM_CORE = (function () {
     
     let menu = `<div><a href="#/home">Home</a></div>`;
     if(auth.config.type == 'admin'){
-      menu += `<div><a href="#/game">Game</a></div>`;
+      menu += `<div><a href="#/game">Game</a></div>
+      
+      `;
     }
     menu += `<div><a href="#/user">Users</a></div>
-    <div><a href="#/report/transfer">Transfer Log</a></div>
-    <div><a href="#/report/rocket">Bet Log</a></div>
     <div><a href="#/market_analysis">Market Analysis</a></div>
     <div><a href="#/pl">Profit / Loss</a></div>
+    <div><a href="#/report/transfer">Transfer Log</a></div>
+    <div><a href="#/report/rocket">Bet Log</a></div>
+    ${auth.config.type == 'admin'?`<div><a href="#/report/user">User Log</a></div>`:``}
     <div><a href="#/profile/changepwd">Password</a></div>
     <div><a class="logoutBTN" id="logoutBTN">Logout</a></div>
     `;

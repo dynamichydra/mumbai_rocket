@@ -19,21 +19,21 @@
   let selectedGameType = null;
   let serverTime = null;
   let gameType = {
-    'single':{name:'Single',text:'Mumbai Rocket Single : 1 points win prize: 9 Points'},
-    'patti':{name:'Patti', text: 'Mumbai Rocket Patti: 1 points win prize: 100 Points'}
+    'single':{name:'Single',text:'Eagle Super Single : 10 points win prize: 91 Points'},
+    'patti':{name:'Patti', text: 'Eagle Super Patti: 1 points win prize: 125 Points'}
   };
   let sortCutAmt = {
     'single':[{amt:10,txt:'10'},{amt:50,txt:'50'},{amt:100,txt:'100'},{amt:250,txt:'250'},{amt:500,txt:'500'},{amt:1000,txt:'1k'},{amt:3000,txt:'3k'},{amt:5000,txt:'5k'}],
     'patti':[{amt:5,txt:'5'},{amt:10,txt:'10'},{amt:15,txt:'15'},{amt:20,txt:'20'},{amt:25,txt:'25'},{amt:30,txt:'30'},{amt:40,txt:'40'},{amt:50,txt:'50'}]
   };
-  // 'cppatti':{name:'Cp Patti', text :'Mumbai Rocket CP patti: 1 points win prize: 100 Points'}
+
   const popup = document.getElementById("sitePopup");
 
   init();
 
   function init() {
     getGameDetails();
-    $('#pageTitle').html('Mumbai Rocket');
+    $('#pageTitle').html('Eagle Super');
     DM_COMMON.fetchUserData();
     bindEvents();
   }
@@ -147,7 +147,7 @@
     }
     
     backendSource.customRequest('bet',null,{
-      game:'mumbaiRocket',
+      game:'eagleSuper',
       type:'bet',
       data : {bet:arr,
         user_id:auth.config.id,
@@ -502,7 +502,7 @@
   async function getGameDetails(){
     let toDay = moment().format('YYYY-MM-DD');
     let game = await DM_GENERAL.fetchInplayGame([
-      {'key':'game_code','operator':'is','value':'mumbaiRocket'},
+      {'key':'game_code','operator':'is','value':'eagleSuper'},
       {'key':'start','operator':'higher','value':toDay+' 00:00:00'},
       {'key':'end','operator':'lower','value':toDay+' 23:59:59'},
     ]);

@@ -38,6 +38,7 @@ mumbaiRocket.prototype.startGame = async function () {
     }
   }
   let curDate = moment().format('YYYY-MM-DD H:mm')+':00';
+  
   let targetGame = await sql.getData('game_inplay', {'where':[
     {'key':'game_code','operator':'is','value':_.code},
     {'key':'status','operator':'is','value':0},
@@ -111,14 +112,14 @@ mumbaiRocket.prototype.generateResult = async function (data) {
       let inPlay = res.MESSAGE;
       await sql.startTransaction();
 
-      let oldWin = await sql.getData('mumbaiRocket', {'where':[
+      let oldWin = await sql.getData('rocket_bet', {'where':[
         {'key':'game_id','operator':'is','value':inPlay.id},
         {'key':'price','operator':'higher','value':0}
       ]});
       if(oldWin.SUCCESS && oldWin.MESSAGE.length>0){
         
         for(const item of oldWin.MESSAGE){
-          await sql.setData('mumbaiRocket',{
+          await sql.setData('rocket_bet',{
             'id':item.id,
             'price':0,
             'status':0});
@@ -126,14 +127,14 @@ mumbaiRocket.prototype.generateResult = async function (data) {
         }
       }
 
-      res = await sql.getData('mumbaiRocket', {'where':[
+      res = await sql.getData('rocket_bet', {'where':[
         {'key':'game_id','operator':'is','value':inPlay.id},
         {'key':'number','operator':'is','value':data.num}
       ]});
       if(res.SUCCESS && res.MESSAGE.length>0){
         for(const item of res.MESSAGE){
           let tP = item.amt * _.price.patti;
-          await sql.setData('mumbaiRocket',{
+          await sql.setData('rocket_bet',{
             'id':item.id,
             'price':tP,
             'status':1});
@@ -141,17 +142,23 @@ mumbaiRocket.prototype.generateResult = async function (data) {
         }
       }
 
-      res = await sql.getData('mumbaiRocket', {'where':[
+      res = await sql.getData('rocket_bet', {'where':[
         {'key':'game_id','operator':'is','value':inPlay.id},
         {'key':'number','operator':'is','value':data.single}
       ]});
       if(res.SUCCESS && res.MESSAGE.length>0){
         for(const item of res.MESSAGE){
           let tP = item.amt * _.price.single;
-          await sql.setData('mumbaiRocket',{
+          await sql.setData('rocket_bet',{
             'id':item.id,
             'price':tP,
             'status':1});
+          // await sql.setData('transaction_log',{
+          //   'user_id':item.user_id,
+          //   'amt':tP,
+          //   'ref_no':item.id,
+          //   'type':'d',
+          //   'description':'Mumbai Rocket win ('+item.game_id+') '+item.number});
           await sql.customSQL('UPDATE user SET balance = balance +'+tP+' WHERE id ='+item.user_id);
         }
       }

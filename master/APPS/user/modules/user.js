@@ -474,6 +474,9 @@
                 <td style="display:flex;">
                   <a class="actionBtn" href="#/report/transfer/${e.id}"><i class="bi bi-arrow-left-right"></i></a>
                   <a class="actionBtn" href="#/pl/index/${e.id}"><i class="bi bi-graph-up-arrow"></i></a>
+                  ${auth.config.type=='admin'?`
+                    <a class="actionBtn" target="_BLANK" href="#/report/user/${e.ph}">Log</a>`:``}
+                  
                   ${selectUser==auth.config.id ?`
                   <span class="actionBtn" data-moneyid="${e.id}"><i class="bi bi-cash-stack"></i></span>
                   <span class="actionBtn" data-editid="${e.id}"><i class="bi bi-pencil-square"></i></span>

@@ -2,26 +2,59 @@
 
 (function () {
 
+  let baji = {
+    'mumbaiRocket':['All','MR1','MR2','MR3','MR4','MR5','MR6','MR7','MR8'],
+    'eagleSuper':['All','ES1','ES2','ES3','ES4','ES5','ES6','ES7','ES8']
+  };
+  let gameCode = null;
+
   init();
 
   async function init() {
-    // getLog();
     const today = new Date();
     const formattedDate = today.toISOString().split('T')[0];
     $('#fDate').val(formattedDate);
     $('#tDate').val(formattedDate);
+    getGameType();
     bindEvents();
   }
 
   function bindEvents() {
     $('.searchUser').on('click',getLog);
+    $('#gCode').on('change',function(){
+      gameCode = $('#gCode').val();
+      generateBajiOpt();
+    });
+  }
+
+  function getGameType(){
+    $('#gCode').html('');
+    backendSource.getObject('game', null, {where:[
+      {'key':'status','operator':'is','value':1}
+    ]}, function (data) {
+      data.MESSAGE.map(e=>{
+        $('#gCode').append(`
+          <option value="${e.code}">${e.name}</option>
+        `);
+      });
+      gameCode = $('#gCode').val();
+      generateBajiOpt();
+    });
+  }
+
+  function generateBajiOpt(){
+    let htm = ``;
+    for(let i in baji[gameCode]){
+      htm += `<option value="${baji[gameCode][i]=='All'?'':baji[gameCode][i]}">${baji[gameCode][i]}</option>`;
+    }
+    $('#gameBaji').html(htm);
   }
 
   function getLog(){
     DM_TEMPLATE.showBtnLoader(elq('.searchUser'), true);
     let uId = $('#uId').val();
     let uName = $('#uName').val();
-    let gId = $('#gId').val();
+    let gCode = $('#gCode').val();
     let status =  $('#uStatus').find(":selected").val();
     let fdate = $('#fDate').val();
     let tdate = $('#tDate').val();
@@ -29,13 +62,14 @@
     backendSource.customRequest('report', null, {
       uId: (uId && uId != '' ? uId : ''),
       uName: (uName && uName != '' ? uName : ''),
-      gId: (gId && gId != '' ? gId : ''),
+      gCode: (gCode && gCode != '' ? gCode : 'fatafat'),
       status: (status && status != '' ? status : ''),
       fdate: (fdate && fdate != '' ? fdate : ''),
       tdate: (tdate && tdate != '' ? tdate : ''),
       pType: auth.config.type,
+      gName :$('#gameBaji').val(),
       pId: auth.config.id,
-      grant_type: 'rocket_log'
+      grant_type: 'bet_log'
     }, function (data) {
       if(data.SUCCESS){
         $('#tblUser tbody').html('');

@@ -13,8 +13,9 @@
       'nine':[9,900,234,333,180,360,270,450,199,117,469,126,667,478,135,225,144,379,559,289,388,577,568],
       'zero':[0,'000',127,190,280,370,460,550,235,118,578,145,479,668,299,334,488,389,226,569,677,136,244]
     };
-  let price = {'patti':100,'single':9};
+  let price = {'mumbaiRocket':{'patti':100,'single':9},'eagleSuper':{'patti':125,'single':9.1}};
   let curGame = null;
+  let gameCode = null;
   const popup = document.getElementById("sitePopup");
 
   init();
@@ -22,8 +23,7 @@
   function init() {
     document.getElementById('searchDate').valueAsDate = new Date();
 
-    getGameDetails();
-    $('#pageTitle').html('Mumbai Rocket');
+    getGameType();
     bindEvents();
   }
 
@@ -37,7 +37,25 @@
     $('#sitePopup').on('click','.pctCalCk',function(){
       recalculateResult(this.checked);
     });
-    
+    $('#gameName').on('change',function(){
+      gameCode = $('#gameName').val();
+      getGameDetails();
+    });
+  }
+
+  function getGameType(){
+    $('#gameName').html('');
+    backendSource.getObject('game', null, {where:[
+      {'key':'status','operator':'is','value':1}
+    ]}, function (data) {
+      data.MESSAGE.map(e=>{
+        $('#gameName').append(`
+          <option value="${e.code}">${e.name}</option>
+        `);
+      });
+      gameCode = $('#gameName').val();
+      getGameDetails();
+    });
   }
 
   function recalculateResult(ck){
@@ -50,9 +68,9 @@
             amt = amtAll
           }
           if($(`.innerNum[data-no="${gameSet[i][j]}"]`).hasClass('head')){
-            $(`.innerNum[data-no="${gameSet[i][j]}"]`).find('.tooltiptext').html('Price: '+(amt*price.single)+'</br>Bet: '+amt);
+            $(`.innerNum[data-no="${gameSet[i][j]}"]`).find('.tooltiptext').html('Price: '+(amt*price[gameCode].single)+'</br>Bet: '+amt);
           }else{
-            $(`.innerNum[data-no="${gameSet[i][j]}"]`).find('.tooltiptext').html('Price: '+(amt*price.patti)+'</br>Bet: '+amt);
+            $(`.innerNum[data-no="${gameSet[i][j]}"]`).find('.tooltiptext').html('Price: '+(amt*price[gameCode].patti)+'</br>Bet: '+amt);
           }
           $(`.innerNum[data-no="${gameSet[i][j]}"]`).find('p').html(amt);
         }
@@ -72,10 +90,11 @@
       if(cGame){
         generateResultPopup(cGame);
         backendSource.customRequest('report', null, {
-          gIdE: id,
+          gId: id,
+          gCode :gameCode,
           pType: auth.config.type,
           pId: auth.config.id,
-          grant_type: 'rocket_log'
+          grant_type: 'bet_log'
         }, function (data) {
           if(data.SUCCESS && data.MESSAGE.length>0){
             // let pct = 100 - auth.config.percentage;
@@ -83,11 +102,8 @@
             let totAll = 0;
             for(let i in data.MESSAGE){
               let pct = auth.config.percentage>0?auth.config.percentage:100;
-              console.log(data.MESSAGE[i])
               let amt = $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).attr('data-amt');
-              console.log(amt)
               let amtAll = $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).attr('data-amtall');
-              console.log(pct)
               // let pctTmp = 0;
               if(auth.config.type == 'master'){
                 if(data.MESSAGE[i].u3id != 0 && data.MESSAGE[i].u3id != auth.config.id){
@@ -98,8 +114,7 @@
                   pct = pct - data.MESSAGE[i].u2percentage;
                 }
               }
-              console.log(pct)
-              console.log('==========')
+              
               let amtTmp = (parseFloat(data.MESSAGE[i].amt)*pct)/100;
               if(amt){
                 amt = Math.round(parseFloat(amt) + parseFloat(amtTmp));
@@ -127,9 +142,9 @@
                 }
                 
                 if($(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).hasClass('head')){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).find('.tooltiptext').html('Price: '+(amt*price.single)+'</br>Bet: '+amt);
+                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).find('.tooltiptext').html('Price: '+(amt*price[gameCode].single)+'</br>Bet: '+amt);
                 }else{
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).find('.tooltiptext').html('Price: '+(amt*price.patti)+'</br>Bet: '+amt);
+                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).find('.tooltiptext').html('Price: '+(amt*price[gameCode].patti)+'</br>Bet: '+amt);
                 }
                 $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).find('p').html(amt);
                 $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).attr('data-amt',amt);
@@ -174,7 +189,7 @@
     }
     $(`#sitePopup`).html(`<div class="popup-content pattiList" data-id="${cGame.id}">
           <span class="close" id="closePopup">&times;</span>
-          <h2>Game: ${cGame.name} <span>${gameStatus}</span></h2>
+          <h2>Game: ${$('#gameName option:selected').text()} - ${cGame.name} <span>${gameStatus}</span></h2>
           <p>Game timing: ${moment(cGame.start).format("HH:mm")} to ${moment(cGame.end).format("HH:mm")} <span style="float:right;"><input type="checkbox" class="pctCalCk" value="1" checked>&nbsp;Calculate All</span></p>
           <p>Total: <span id="totalBet">0</span></p>
           <div class="container">
@@ -193,7 +208,7 @@
     DM_TEMPLATE.showBtnLoader(elq('.searchGame'), true);
     let toDay = moment($('#searchDate').val()).format('YYYY-MM-DD');
     let game = await DM_GENERAL.fetchInplayGame([
-      {'key':'game_code','operator':'is','value':'mumbaiRocket'},
+      {'key':'game_code','operator':'is','value':gameCode},
       {'key':'start','operator':'higher','value':toDay+' 00:00:00'},
       {'key':'end','operator':'lower','value':toDay+' 23:59:59'},
     ]);

@@ -7,6 +7,11 @@
   let selUserPar = null;
   let selUserParType = null;
   let paramType = null;
+  let gameCode = null;
+  let baji = {
+    'mumbaiRocket':['All','MR1','MR2','MR3','MR4','MR5','MR6','MR7','MR8'],
+    'eagleSuper':['All','ES1','ES2','ES3','ES4','ES5','ES6','ES7','ES8']
+  };
   init();
 
   async function init() {
@@ -19,7 +24,7 @@
     $('#fDate').val(formattedDate);
     $('#tDate').val(formattedDate);
 
-    getLog();
+    getGameType();
     
     bindEvents();
   }
@@ -28,12 +33,40 @@
     $('.searchUser').on('click',getLog);
     $('#tblUser').on('click','.itemBtn',getCurUser);
     $('#backResult').on('click',backUser);
+    $('#gameName').on('change',function(){
+      gameCode = $('#gameName').val();
+      generateBajiOpt();
+    });
+  }
+
+  function getGameType(){
+    $('#gameName').html('');
+    backendSource.getObject('game', null, {where:[
+      {'key':'status','operator':'is','value':1}
+    ]}, function (data) {
+      data.MESSAGE.map(e=>{
+        $('#gameName').append(`
+          <option value="${e.code}">${e.name}</option>
+        `);
+      });
+      gameCode = $('#gameName').val();
+      generateBajiOpt();
+    });
+  }
+
+  function generateBajiOpt(){
+    let htm = ``;
+    for(let i in baji[gameCode]){
+      htm += `<option value="${baji[gameCode][i]=='All'?'':baji[gameCode][i]}">${baji[gameCode][i]}</option>`;
+    }
+    $('#gameBaji').html(htm);
+    getLog();
   }
 
   async function backUser(){
     cUser = selUserPar;
     cType = selUserParType;
-    
+    if(!cUser)return;
     let usr = await DM_GENERAL.userData(cUser);
     $('#transUser').html(usr.MESSAGE.ph);
     if(cUser == auth.config.id){
@@ -53,7 +86,6 @@
     cUser = $(this).attr('data-id');
     cType = $(this).attr('data-type');
     let usr = await DM_GENERAL.userData(cUser);
-      
     $('#transUser').html(usr.MESSAGE.ph);
     if(cUser == auth.config.id){
       selUserPar = null;
@@ -77,12 +109,12 @@
       fdate: (fdate && fdate != '' ? fdate : ''),
       tdate: (tdate && tdate != '' ? tdate : ''),
       pType: cType,
-      gName :$('#gameBaji').val(),
       pId: cUser,
+      gCode :gameCode,
+      gName :$('#gameBaji').val(),
       grant_type: 'pl'
     }, function (data) {
       if(data.SUCCESS){
-        console.log(data)
         $('#tblUser tbody').html('');
         if(data.MESSAGE.length>0){
           let arr = {};
@@ -182,7 +214,7 @@
               arr[data.MESSAGE[i].u1id].price += data.MESSAGE[i].price;
             }
           }
-          console.log(arr)
+          
           let totAmt= 0, totPrice = 0;
           for(const i in arr){
             $('#tblUser tbody').append(`

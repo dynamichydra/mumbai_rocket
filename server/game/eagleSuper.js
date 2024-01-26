@@ -3,10 +3,10 @@ const libFunc = require('../lib/func.js');
 let sql = require('../modules/mysql/common').init;
 
 
-const mumbaiRocket = function () {
-  this.code = 'mumbaiRocket';
+const eagleSuper = function () {
+  this.code = 'eagleSuper';
   this.func = new libFunc();
-  this.price = {'patti':100,'single':9};
+  this.price = {'patti':125,'single':9.1};
   this.gameSet = {
     1:[1,100, 678, 777, 560, 470, 380, 290,119,137,236,146,669,579,399,588,489,245,155,227,344,335,128],
     2:[2,200,345,444,570,480,390,660,129,237,336,246,679,255,147,228,499,688,778,138,156,110,589],
@@ -21,7 +21,7 @@ const mumbaiRocket = function () {
   };
 }
 
-mumbaiRocket.prototype.startGame = async function () {
+eagleSuper.prototype.startGame = async function () {
   let _ = this;
   let conn = await sql.connectDB();
 
@@ -53,21 +53,21 @@ mumbaiRocket.prototype.startGame = async function () {
   conn.release();
 }
 
-mumbaiRocket.prototype.generateGame = async function (data) {
+eagleSuper.prototype.generateGame = async function (data) {
   let curDate = moment().format('YYYY-MM-DD');
   if(data && data.date){
     curDate = data.date;
   }
 
   let gameStartTime = [
-    {'name':"MR1",start:"07:30:00",end:"10:12:00",duration:162},
-    {'name':"MR2",start:"10:12:00",end:"11:42:00",duration:90},
-    {'name':"MR3",start:"11:42:00",end:"13:12:00",duration:90},
-    {'name':"MR4",start:"13:12:00",end:"14:42:00",duration:90},
-    {'name':"MR5",start:"14:42:00",end:"16:12:00",duration:90},
-    {'name':"MR6",start:"16:12:00",end:"17:42:00",duration:90},
-    {'name':"MR7",start:"17:42:00",end:"19:12:00",duration:90},
-    {'name':"MR8",start:"19:12:00",end:"20:42:00",duration:90}
+    {'name':"ES1",start:"07:10:00",end:"09:30:00",duration:150},
+    {'name':"ES2",start:"09:30:00",end:"11:00:00",duration:90},
+    {'name':"ES3",start:"11:00:00",end:"12:30:00",duration:90},
+    {'name':"ES4",start:"12:30:00",end:"14:00:00",duration:90},
+    {'name':"ES5",start:"14:00:00",end:"15:30:00",duration:90},
+    {'name':"ES6",start:"15:30:00",end:"17:00:00",duration:90},
+    {'name':"ES7",start:"17:00:00",end:"18:30:00",duration:90},
+    {'name':"ES8",start:"18:30:00",end:"20:00:00",duration:90}
   ];
   let _ = this;
   return new Promise(async function (result) {
@@ -97,7 +97,7 @@ mumbaiRocket.prototype.generateGame = async function (data) {
   });
 }
 
-mumbaiRocket.prototype.generateResult = async function (data) {
+eagleSuper.prototype.generateResult = async function (data) {
   let _ = this;
   
   return new Promise(async function (result) {
@@ -111,14 +111,14 @@ mumbaiRocket.prototype.generateResult = async function (data) {
       let inPlay = res.MESSAGE;
       await sql.startTransaction();
 
-      let oldWin = await sql.getData('mumbaiRocket', {'where':[
+      let oldWin = await sql.getData('eagleSuper', {'where':[
         {'key':'game_id','operator':'is','value':inPlay.id},
         {'key':'price','operator':'higher','value':0}
       ]});
       if(oldWin.SUCCESS && oldWin.MESSAGE.length>0){
         
         for(const item of oldWin.MESSAGE){
-          await sql.setData('mumbaiRocket',{
+          await sql.setData('eagleSuper',{
             'id':item.id,
             'price':0,
             'status':0});
@@ -126,14 +126,14 @@ mumbaiRocket.prototype.generateResult = async function (data) {
         }
       }
 
-      res = await sql.getData('mumbaiRocket', {'where':[
+      res = await sql.getData('eagleSuper', {'where':[
         {'key':'game_id','operator':'is','value':inPlay.id},
         {'key':'number','operator':'is','value':data.num}
       ]});
       if(res.SUCCESS && res.MESSAGE.length>0){
         for(const item of res.MESSAGE){
           let tP = item.amt * _.price.patti;
-          await sql.setData('mumbaiRocket',{
+          await sql.setData('eagleSuper',{
             'id':item.id,
             'price':tP,
             'status':1});
@@ -141,14 +141,14 @@ mumbaiRocket.prototype.generateResult = async function (data) {
         }
       }
 
-      res = await sql.getData('mumbaiRocket', {'where':[
+      res = await sql.getData('eagleSuper', {'where':[
         {'key':'game_id','operator':'is','value':inPlay.id},
         {'key':'number','operator':'is','value':data.single}
       ]});
       if(res.SUCCESS && res.MESSAGE.length>0){
         for(const item of res.MESSAGE){
           let tP = item.amt * _.price.single;
-          await sql.setData('mumbaiRocket',{
+          await sql.setData('eagleSuper',{
             'id':item.id,
             'price':tP,
             'status':1});
@@ -166,4 +166,4 @@ mumbaiRocket.prototype.generateResult = async function (data) {
   });
 }
 
-module.exports = mumbaiRocket; 
+module.exports = eagleSuper; 
