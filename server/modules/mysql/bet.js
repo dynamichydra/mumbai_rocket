@@ -72,15 +72,6 @@ exports.init = {
                   let insertSql = "INSERT INTO "+gameType+" SET id='"+Date.now()+i+"."+user.id+"', game_id="+data.game_id+",user_id="+user.id+", number="+data.bet[i].n+",type='"+data.type+"',service='"+service+"',amt='"+amt+"' ";
                   let t = await commonObj.customSQL(insertSql);
                   
-
-                  // let t = await commonObj.setData(gameType, {
-                  //   game_id:data.game_id,
-                  //   user_id:user.id,
-                  //   number:data.bet[i].n,
-                  //   type : data.type,
-                  //   service : service,
-                  //   amt:amt}
-                  // );
                   betNo.push(data.bet[i].n);
                 }
                 
@@ -91,15 +82,25 @@ exports.init = {
                 let t = await commonObj.setData('user', {id:user.id, 
                   balance:bal
                   });
-                let insertSql = "INSERT INTO transaction_log SET id='b-"+Date.now()+"."+user.id+"', user_id="+user.id+",amt='"+totAmt+"', ref_no='"+data.game_id+"',description='"+gameType+" bet "+betNo.toString()+" - bal: "+bal+"' ";
-                t = await commonObj.customSQL(insertSql);
+                  if(t.SUCCESS){
+                    let insertSql = "INSERT INTO transaction_log SET id='b-"+Date.now()+"."+user.id+"', user_id="+user.id+",amt='"+totAmt+"', ref_no='"+data.game_id+"',description='"+gameType+" bet "+betNo.toString()+" - bal: "+bal+"' ";
+                    t = await commonObj.customSQL(insertSql);
+                    if(t.SUCCESS){
+                      await commonObj.commitTransaction();
+                      if(errMsg){
+                        result({SUCCESS:false,MESSAGE: errMsg});
+                      }else{
+                        result(t);
+                      }
+                    }else{
+                      await commonObj.rollbackTransaction();
+                      result({SUCCESS:false,MESSAGE:'Unable to commit the transaction now. Please try letter.',ERR:t.MESSAGE});
+                    }
+                  }else{
+                    await commonObj.rollbackTransaction();
+                    result({SUCCESS:false,MESSAGE:'Unable to commit the transaction now. Please try letter.',ERR:t.MESSAGE});
+                  }
                 
-                await commonObj.commitTransaction();
-                if(errMsg){
-                  result({SUCCESS:false,MESSAGE: errMsg});
-                }else{
-                  result(t);
-                }
               }else{
                 await commonObj.rollbackTransaction();
                 result({SUCCESS:false,MESSAGE: errMsg});

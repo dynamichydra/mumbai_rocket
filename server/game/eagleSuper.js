@@ -141,6 +141,7 @@ eagleSuper.prototype.generateResult = async function (data) {
       {'key':'game_code','operator':'is','value':_.code},
        {'key':'id','operator':'is','value':data.id}
     ]});
+    let errorFound = null;
     if(res.SUCCESS && res.MESSAGE.id){
       let inPlay = res.MESSAGE;
       await sql.startTransaction();
@@ -156,14 +157,22 @@ eagleSuper.prototype.generateResult = async function (data) {
             'id':item.id,
             'price':0,
             'status':0});
-
+          if(!t.SUCCESS){
+            errorFound = true;
+          }
           let user = await sql.getData('user', {where:[
             {key:"id",operator:"is", value:item.user_id}
           ]});
           let bal = user.MESSAGE.balance -item.price;
           t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
-          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+bal+"', ref_no='"+item.id+"',description='"+_.code+" win return - bal: "+bal+"' ";
+          if(!t.SUCCESS){
+            errorFound = true;
+          }
+          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+item.price+"', ref_no='"+item.id+"',description='"+_.code+" win return - bal: "+bal+"' ";
           t = await sql.customSQL(insertSql);
+          if(!t.SUCCESS){
+            errorFound = true;
+          }
         }
       }
 
@@ -179,14 +188,22 @@ eagleSuper.prototype.generateResult = async function (data) {
             'id':item.id,
             'price':tP,
             'status':1});
-          
+          if(!t.SUCCESS){
+            errorFound = true;
+          }
           let user = await sql.getData('user', {where:[
             {key:"id",operator:"is", value:item.user_id}
           ]});
           let bal = user.MESSAGE.balance +tP;
           t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
-          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+bal+"', ref_no='"+item.id+"',description='"+_.code+" win - bal: "+bal+"' ";
+          if(!t.SUCCESS){
+            errorFound = true;
+          }
+          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+tP+"', ref_no='"+item.id+"',description='"+_.code+" win - bal: "+bal+"' ";
           t = await sql.customSQL(insertSql);
+          if(!t.SUCCESS){
+            errorFound = true;
+          }
         }
       }
 
@@ -202,24 +219,41 @@ eagleSuper.prototype.generateResult = async function (data) {
             'id':item.id,
             'price':tP,
             'status':1});
-          
+          if(!t.SUCCESS){
+            errorFound = true;
+          }
           let user = await sql.getData('user', {where:[
             {key:"id",operator:"is", value:item.user_id}
           ]});
           let bal = user.MESSAGE.balance +tP;
           t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
-          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+bal+"', ref_no='"+item.id+"',description='"+_.code+" win - bal: "+bal+"' ";
+          if(!t.SUCCESS){
+            errorFound = true;
+          }
+          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+tP+"', ref_no='"+item.id+"',description='"+_.code+" win - bal: "+bal+"' ";
           t = await sql.customSQL(insertSql);
+          if(!t.SUCCESS){
+            errorFound = true;
+          }
         }
       }
 
-      await sql.setData('game_inplay',{'id':inPlay.id,'status':'2','result_one':data.num,'result_two':data.single});
-      
-      
-      await sql.commitTransaction();
+      let t = await sql.setData('game_inplay',{'id':inPlay.id,'status':'2','result_one':data.num,'result_two':data.single});
+      if(!t.SUCCESS){
+        errorFound = true;
+      }
+      if(errorFound){
+        await sql.rollbackTransaction();
+      }else{
+        await sql.commitTransaction();
+      }
     }
     conn.release();
-    result({SUCCESS:true,MESSAGE:'Success'});
+    if(errorFound){
+      result({SUCCESS:false,MESSAGE:'There is some issue'});
+    }else{
+      result({SUCCESS:true,MESSAGE:'Success'});
+    }
   });
 }
 
