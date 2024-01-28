@@ -178,18 +178,41 @@ exports.init = {
                 if(user.MESSAGE.balance < parseFloat(data.amt)){
                   result({SUCCESS:false,MESSAGE:'Please provide a proper amount!'});
                 }else{
-                  let t = await commonObj.getData('user', {where:[
+                  await commonObj.startTransaction();
+                  let tUser = await commonObj.getData('user', {where:[
                     {key:"id",operator:"is", value:data.tid}
                   ]});
-                  if(t.SUCCESS){
-                    t = await commonObj.customSQL('UPDATE user SET balance = balance +'+data.amt+' WHERE id ='+data.tid);
-                    t = await commonObj.customSQL('UPDATE user SET balance = balance -'+data.amt+' WHERE id ='+data.fid);
-                    t = await commonObj.setData('transfer_log', {
-                      fid:data.fid, 
-                      tid:data.tid, 
-                      amt:data.amt,
-                      type:'t'
-                    });
+                  if(tUser.SUCCESS){
+                    // t = await commonObj.customSQL('UPDATE user SET balance = balance +'+data.amt+' WHERE id ='+data.tid);
+                    // t = await commonObj.customSQL('UPDATE user SET balance = balance -'+data.amt+' WHERE id ='+data.fid);
+                    // t = await commonObj.setData('transfer_log', {
+                    //   fid:data.fid, 
+                    //   tid:data.tid, 
+                    //   amt:data.amt,
+                    //   type:'t'
+                    // });
+
+
+
+                    t = await commonObj.customSQL('UPDATE user SET balance = '+(parseFloat(tUser.MESSAGE.balance)+parseFloat(data.amt))+' WHERE id ='+data.tid);
+                    t = await commonObj.customSQL('UPDATE user SET balance = '+(parseFloat(user.MESSAGE.balance)-parseFloat(data.amt))+' WHERE id ='+data.fid);
+                    let tId = Date.now()+"."+data.fid+"."+data.tid;
+                    
+                    let insertSql = "INSERT INTO transfer_log SET id='"+tId+"', fid="+data.fid+",tid="+data.tid+", amt="+data.amt+",type='t' ";
+                    t = await commonObj.customSQL(insertSql);
+                    // t = await commonObj.setData('transfer_log', {
+                    //   fid:data.fid, 
+                    //   tid:data.tid, 
+                    //   amt:data.amt,
+                    //   type:'w',
+                    // });
+
+                    insertSql = "INSERT INTO transaction_log SET id='tf-"+tId+"', user_id="+data.fid+",amt='"+data.amt+"', ref_no='"+tId+"',description='"+"withdraw - bal: "+(parseFloat(user.MESSAGE.balance)-parseFloat(data.amt))+"' ";
+                    t = await commonObj.customSQL(insertSql);
+                    insertSql = "INSERT INTO transaction_log SET id='tt-"+tId+"', user_id="+data.tid+",amt='"+data.amt+"', ref_no='"+tId+"',description='"+"withdraw - bal: "+(parseFloat(tUser.MESSAGE.balance)+parseFloat(data.amt))+"' ";
+                    t = await commonObj.customSQL(insertSql);
+                    
+                    await commonObj.commitTransaction();
                     result({SUCCESS:true,MESSAGE:'Fund transfer successfully!'});
                   }else{
                     result({SUCCESS:false,MESSAGE:'User not found to transfer! Please provide proper user ID.'});
@@ -211,22 +234,33 @@ exports.init = {
               ]});
 
               if(user.SUCCESS){
-                let t = await commonObj.getData('user', {where:[
+                let fUser = await commonObj.getData('user', {where:[
                   {key:"id",operator:"is", value:data.fid}
                 ]});
-                if(t.SUCCESS){
-                  if(t.MESSAGE.balance < parseFloat(data.amt)){
+                if(fUser.SUCCESS){
+                  if(fUser.MESSAGE.balance < parseFloat(data.amt)){
                     result({SUCCESS:false,MESSAGE:'Please provide a proper amount!'});
                   }else{
-                  
-                    t = await commonObj.customSQL('UPDATE user SET balance = balance +'+data.amt+' WHERE id ='+data.tid);
-                    t = await commonObj.customSQL('UPDATE user SET balance = balance -'+data.amt+' WHERE id ='+data.fid);
-                    t = await commonObj.setData('transfer_log', {
-                      fid:data.fid, 
-                      tid:data.tid, 
-                      amt:data.amt,
-                      type:'w',
-                    });
+                    await commonObj.startTransaction();
+                    t = await commonObj.customSQL('UPDATE user SET balance = '+(parseFloat(user.MESSAGE.balance)+parseFloat(data.amt))+' WHERE id ='+data.tid);
+                    t = await commonObj.customSQL('UPDATE user SET balance = '+(parseFloat(fUser.MESSAGE.balance)-parseFloat(data.amt))+' WHERE id ='+data.fid);
+                    let tId = Date.now()+"."+data.fid+"."+data.tid;
+                    
+                    let insertSql = "INSERT INTO transfer_log SET id='"+tId+"', fid="+data.fid+",tid="+data.tid+", amt="+data.amt+",type='w' ";
+                    t = await commonObj.customSQL(insertSql);
+                    // t = await commonObj.setData('transfer_log', {
+                    //   fid:data.fid, 
+                    //   tid:data.tid, 
+                    //   amt:data.amt,
+                    //   type:'w',
+                    // });
+                    insertSql = "INSERT INTO transaction_log SET id='wf-"+tId+"', user_id="+data.fid+",amt='"+data.amt+"', ref_no='"+tId+"',description='"+"withdraw - bal: "+(parseFloat(fUser.MESSAGE.balance)-parseFloat(data.amt))+"' ";
+                    
+                    t = await commonObj.customSQL(insertSql);
+                    insertSql = "INSERT INTO transaction_log SET id='wt-"+tId+"', user_id="+data.tid+",amt='"+data.amt+"', ref_no='"+tId+"',description='"+"withdraw - bal: "+(parseFloat(user.MESSAGE.balance)+parseFloat(data.amt))+"' ";
+                    t = await commonObj.customSQL(insertSql);
+                    
+                    await commonObj.commitTransaction();
                     result({SUCCESS:true,MESSAGE:'Fund withdraw successfully!'});
                   }
                 }else{

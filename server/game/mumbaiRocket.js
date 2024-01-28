@@ -97,6 +97,39 @@ mumbaiRocket.prototype.generateGame = async function (data) {
   });
 }
 
+mumbaiRocket.prototype.cancelAllBet = async function (data) {
+  let _ = this;
+  return new Promise(async function (result) {
+    let conn = await sql.connectDB();
+    let res = await sql.getData('game_inplay', {'where':[
+      {'key':'game_code','operator':'is','value':_.code},
+       {'key':'id','operator':'is','value':data.id}
+    ]});
+    if(res.SUCCESS && res.MESSAGE.id){
+      let oldBet = await sql.getData(_.code, {'where':[
+        {'key':'game_id','operator':'is','value':res.MESSAGE.id}
+      ]});
+      if(oldBet.SUCCESS && oldBet.MESSAGE.length>0){
+        await sql.startTransaction();
+        let count = 0;
+        for(const item of oldBet.MESSAGE){
+          let user = await sql.getData('user', {where:[
+            {key:"id",operator:"is", value:item.user_id}
+          ]});
+          let bal = user.MESSAGE.balance + item.amt - item.price;
+          t = await sql.setDelete(_.code,{"id":item.id});
+          t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
+          let insertSql = "INSERT INTO transaction_log SET id='BC-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+(item.amt - item.price)+"', ref_no='"+item.id+"',description='"+_.code+" win return - bal: "+bal+"' ";
+          t = await sql.customSQL(insertSql);
+        }
+        await sql.commitTransaction();
+      }
+    }
+    conn.release();
+    result({SUCCESS:true,MESSAGE:'Success'});
+  });
+}
+
 mumbaiRocket.prototype.generateResult = async function (data) {
   let _ = this;
   
@@ -111,48 +144,70 @@ mumbaiRocket.prototype.generateResult = async function (data) {
       let inPlay = res.MESSAGE;
       await sql.startTransaction();
 
-      let oldWin = await sql.getData('mumbaiRocket', {'where':[
+      let oldWin = await sql.getData(_.code, {'where':[
         {'key':'game_id','operator':'is','value':inPlay.id},
         {'key':'price','operator':'higher','value':0}
       ]});
       if(oldWin.SUCCESS && oldWin.MESSAGE.length>0){
-        
+        let count = 0;
         for(const item of oldWin.MESSAGE){
-          await sql.setData('mumbaiRocket',{
+          let t = await sql.setData(_.code,{
             'id':item.id,
             'price':0,
             'status':0});
-          await sql.customSQL('UPDATE user SET balance = balance -'+item.price+' WHERE id ='+item.user_id);
+          
+          let user = await sql.getData('user', {where:[
+            {key:"id",operator:"is", value:item.user_id}
+          ]});
+          let bal = user.MESSAGE.balance - item.price;
+          t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
+          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+bal+"', ref_no='"+item.id+"',description='"+_.code+" win return - bal: "+bal+"' ";
+          t = await sql.customSQL(insertSql);
         }
       }
 
-      res = await sql.getData('mumbaiRocket', {'where':[
+      res = await sql.getData(_.code, {'where':[
         {'key':'game_id','operator':'is','value':inPlay.id},
         {'key':'number','operator':'is','value':data.num}
       ]});
       if(res.SUCCESS && res.MESSAGE.length>0){
+        let count = 0;
         for(const item of res.MESSAGE){
           let tP = item.amt * _.price.patti;
-          await sql.setData('mumbaiRocket',{
+          let t = await sql.setData(_.code,{
             'id':item.id,
             'price':tP,
             'status':1});
-          await sql.customSQL('UPDATE user SET balance = balance +'+tP+' WHERE id ='+item.user_id);
+          let user = await sql.getData('user', {where:[
+            {key:"id",operator:"is", value:item.user_id}
+          ]});
+          let bal = user.MESSAGE.balance +tP;
+          t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
+          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+bal+"', ref_no='"+item.id+"',description='"+_.code+" win - bal: "+bal+"' ";
+          t = await sql.customSQL(insertSql);
         }
       }
 
-      res = await sql.getData('mumbaiRocket', {'where':[
+      res = await sql.getData(_.code, {'where':[
         {'key':'game_id','operator':'is','value':inPlay.id},
         {'key':'number','operator':'is','value':data.single}
       ]});
       if(res.SUCCESS && res.MESSAGE.length>0){
+        let count = 0;
         for(const item of res.MESSAGE){
           let tP = item.amt * _.price.single;
-          await sql.setData('mumbaiRocket',{
+          let t = await sql.setData(_.code,{
             'id':item.id,
             'price':tP,
             'status':1});
-          await sql.customSQL('UPDATE user SET balance = balance +'+tP+' WHERE id ='+item.user_id);
+          let user = await sql.getData('user', {where:[
+            {key:"id",operator:"is", value:item.user_id}
+          ]});
+          let bal = user.MESSAGE.balance +tP;
+          t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
+          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+bal+"', ref_no='"+item.id+"',description='"+_.code+" win - bal: "+bal+"' ";
+          t = await sql.customSQL(insertSql);
+                
         }
       }
 

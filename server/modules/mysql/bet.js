@@ -49,6 +49,7 @@ exports.init = {
               let betNo = [];
               let errMsg = null;
               totAmt = 0;
+              await commonObj.startTransaction();
               for(let i in data.bet){
                 // const service = (parseFloat(data.bet[i].a) * 2)/100;
                 let amtLmt = await commonObj.customSQL("SELECT sum(amt) amt FROM `"+gameType+"` WHERE number="+data.bet[i].n+" AND game_id ="+data.game_id+" AND user_id="+user.id+" AND type = '"+data.type+"'");
@@ -59,6 +60,7 @@ exports.init = {
                 }
                 const service = 0;
                 const amt = parseFloat(data.bet[i].a) - service;
+
                 if((amtLmt.MESSAGE[0].amt && (amtLmt.MESSAGE[0].amt+amt)>bajiLimit) || (amt>bajiLimit)){
                   if(!errMsg){
                     errMsg = "Following number did not place due to max limit: ";
@@ -89,18 +91,17 @@ exports.init = {
                 let t = await commonObj.setData('user', {id:user.id, 
                   balance:bal
                   });
-                t = await commonObj.setData('transaction_log', {
-                    user_id : user.id, 
-                    amt : totAmt,
-                    ref_no : data.game_id,
-                    description : gameType+" bet "+betNo.toString()
-                  });
+                let insertSql = "INSERT INTO transaction_log SET id='b-"+Date.now()+"."+user.id+"', user_id="+user.id+",amt='"+totAmt+"', ref_no='"+data.game_id+"',description='"+gameType+" bet "+betNo.toString()+" - bal: "+bal+"' ";
+                t = await commonObj.customSQL(insertSql);
+                
+                await commonObj.commitTransaction();
                 if(errMsg){
                   result({SUCCESS:false,MESSAGE: errMsg});
                 }else{
                   result(t);
                 }
               }else{
+                await commonObj.rollbackTransaction();
                 result({SUCCESS:false,MESSAGE: errMsg});
               }
               

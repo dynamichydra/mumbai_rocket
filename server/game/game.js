@@ -51,6 +51,9 @@ gameLib.prototype.gameMumbaiRocket = function (task,data) {
       case 'result':
         msg = await game.generateResult(data);
         break;
+      case 'cancelBet':
+        msg = await game.cancelAllBet(data);
+        break;
     }
     result(msg);
   });
@@ -69,6 +72,9 @@ gameLib.prototype.gameEagleSuper = function (task,data) {
         break;
       case 'result':
         msg = await game.generateResult(data);
+        break;
+      case 'cancelBet':
+        msg = await game.cancelAllBet(data);
         break;
     }
     result(msg);

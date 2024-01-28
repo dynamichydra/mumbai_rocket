@@ -19,12 +19,17 @@ DokuMe_SyncInterface.prototype.start = function(){
 
     _.app.get('/game/generate/rocket', function (req, res) {
       const gObj = new game();
-      gObj.generateGame(['mumbaiRocket']);
+      gObj.generateGame(['mumbaiRocket','eagleSuper']);
       res.json({STATUS:true,MESSAGE:'done'});
   });
     _.app.get('/game/start/rocket', function (req, res) {
       const gObj = new game();
       gObj.startGame(['mumbaiRocket']);
+      res.json({STATUS:true,MESSAGE:'done'});
+  });
+    _.app.get('/game/start/super', function (req, res) {
+      const gObj = new game();
+      gObj.startGame(['eagleSuper']);
       res.json({STATUS:true,MESSAGE:'done'});
   });
 

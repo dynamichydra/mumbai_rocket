@@ -80,13 +80,20 @@
     DM_TEMPLATE.showBtnLoader(elq('.saveBtn'), true);
     let id = $(this).attr('data-id');
     if(id){
+      let status = $('#changeStatus').val();
       backendSource.saveObject('game_inplay', id, {
         status: $('#changeStatus').val()
       }, function (data) {
         if(data.SUCCESS){
+          if(parseInt(status)==3){
+            backendSource.gameRequest(gameCode,'cancelBet',{id:id},function(data){
+            
+            });
+          }
+          
           getGameDetails();
-          DM_TEMPLATE.showSystemNotification(1, `Game status updated successfully.`);
-          popup.style.display = "none";
+            DM_TEMPLATE.showSystemNotification(1, `Game status updated successfully.`);
+            popup.style.display = "none";
         }else{
           DM_TEMPLATE.showSystemNotification(0, `Unable to update. Please try again.`);
         }

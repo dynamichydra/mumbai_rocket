@@ -63,6 +63,17 @@ exports.init = {
       });
     });
   },
+  rollbackTransaction : async function(){
+    return new Promise(async function (result) {
+      let sql = `ROLLBACK;;`;
+      db.query(sql, (err, rows) => {
+        if (err) {
+          result({SUCCESS:false,MESSAGE:err.message});
+        }
+        result({SUCCESS:true,MESSAGE:'Ok'});    
+      });
+    });
+  },
     getData : async function( type, data){
       let __ = this;
       return new Promise(async function (result) {
@@ -220,23 +231,6 @@ exports.init = {
     },
 
     setDelete : async function(type, data){
-      let __ = this;
-      let doSync = data.sync ?? true;
-      delete data.sync;
-      
-      let eventId = null;
-      let dokumeId = null;
-      if(doSync){
-        // get data to save the eventId
-        let params = {
-          where:[{key:'id', operator:'is', value:data.id}]
-        };
-        const syncDataResult = await __.getData(type, params);
-        if(syncDataResult.SUCCESS){
-          eventId = syncDataResult.MESSAGE.EVENT_ID;
-          dokumeId = syncDataResult.MESSAGE.DOKUME_ID;
-        }
-      }
       return new Promise(async function (result) {
         let cnd = " 1 ";
         for (const k in data) {
@@ -244,28 +238,13 @@ exports.init = {
         }
         let sql = `DELETE FROM ${type} WHERE ${cnd}`;
         db.query(sql, function(err) {
-          let resData = null;
             if (err) {
-              resData = err.message;
+              result({SUCCESS:false,MESSAGE:err.message});
+
             }else{
-              resData = 'Ok';
+              result({SUCCESS:true,MESSAGE:'ok'});
             }
-            result({SUCCESS:true,MESSAGE:resData});
         });
-      }).then(res=>{
-        if(type != 'dokume_sync' && type != 'events'){
-          if(res.SUCCESS && doSync && dokumeId){
-            __.setData('dokume_sync', {
-              table_name: type,
-              ref_id: dokumeId,
-              status:0,
-              operation:'deleteObject',
-              created:__.current_timestamp(),
-              eventId:eventId
-            });
-          }
-        }
-        return res;
       });
     },
 

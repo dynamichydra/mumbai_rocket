@@ -531,7 +531,7 @@
                       </div>
                       <div class="endTime">
                           <i class="bi bi-clock-fill"></i>
-                          <span class="txt">Result: ${moment(game.MESSAGE[i].end).add(18, 'minutes').format("HH:mm")}</span>
+                          <span class="txt">Result: ${moment(game.MESSAGE[i].end).add(15, 'minutes').format("HH:mm")}</span>
                       </div>
                     </div>`;
           if(game.MESSAGE[i].status==1){
