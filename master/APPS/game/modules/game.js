@@ -158,27 +158,27 @@
               let amt = $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).find('p').html();
               if(amt){
                 amt = parseFloat(amt) + parseFloat(data.MESSAGE[i].amt);
-                if(amt >= 100000){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#ff7676');
-                }else if(amt >= 75000){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#ffa5a5');
-                }else if(amt >= 50000){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#ff76d0');
-                }else if(amt >= 25000){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#ffaeea');
-                }else if(amt >= 10000){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#977cff');
-                }else if(amt >= 5000){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#bcacf8');
-                }else if(amt >= 1000){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#96c5ff');
-                }else if(amt >= 500){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#e0ff00');
-                }else if(amt >= 100){
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#e7f679');
-                }else{
-                  $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#d4ffea');
-                }
+                // if(amt >= 100000){
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#ff7676');
+                // }else if(amt >= 75000){
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#ffa5a5');
+                // }else if(amt >= 50000){
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#ff76d0');
+                // }else if(amt >= 25000){
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#ffaeea');
+                // }else if(amt >= 10000){
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#977cff');
+                // }else if(amt >= 5000){
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#bcacf8');
+                // }else if(amt >= 1000){
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#96c5ff');
+                // }else if(amt >= 500){
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#e0ff00');
+                // }else if(amt >= 100){
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#e7f679');
+                // }else{
+                //   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).css('background-color','#d4ffea');
+                // }
                 
                 if($(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).hasClass('head')){
                   $(`.innerNum[data-no="${data.MESSAGE[i].number}"]`).find('.tooltiptext').html('Price: '+(amt*price[gameCode].single)+'</br>Bet: '+amt);

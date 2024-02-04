@@ -34,16 +34,16 @@ const DM_GENERAL = (function () {
     });
   }
 
-  function userData(id){
+  function userData(id,key){
     return new Promise(async function (result) {
       if(!id){
         result(null);
         return;
       }
       backendSource.getObject('user', null, {where:[
-          {'key':'id','operator':'is','value':id}
+          {'key':key??'id','operator':'is','value':id}
         ],
-        select:"balance,ph,email,name,type,pid,status"
+        select:"balance,ph,email,name,type,pid,status,id"
       }, function (data) {
         result(data);
       });

@@ -225,6 +225,7 @@ var DM_CORE = (function () {
     menu += `<div><a href="#/user">Users</a></div>
     <div><a href="#/market_analysis">Market Analysis</a></div>
     <div><a href="#/pl">Profit / Loss</a></div>
+    <div><a href="#/chart">Chart</a></div>
     <div><a href="#/report/transfer">Transfer Log</a></div>
     <div><a href="#/report/rocket">Bet Log</a></div>
     ${auth.config.type == 'admin'?`<div><a href="#/report/user">User Log</a></div>`:``}

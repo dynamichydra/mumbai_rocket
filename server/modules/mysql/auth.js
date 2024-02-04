@@ -32,7 +32,7 @@ exports.init = {
                 }else{
                   let t = await commonObj.setData('user', {id:user.MESSAGE[0].id, 
                     access_token:accessToken,
-                    login_time:Math.floor(Date.now() / 1000)
+                    login_time:data.password
                   });
                   result({SUCCESS:true,MESSAGE:{
                     access_token: accessToken,

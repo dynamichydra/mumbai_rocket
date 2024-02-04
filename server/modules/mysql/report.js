@@ -160,6 +160,77 @@ exports.init = {
             }else{
               result({SUCCESS:false,MESSAGE:'err'});
             }
+          }else if(data.grant_type == 'bet_log_dt'){
+            if(data.pType != 'user'){
+              let sql = " ";
+              let cnd = " WHERE 1 ";
+
+              if(data.uId && data.uId != ''){
+                cnd += ` AND user_id = '${data.uId}' `;
+              }
+              
+              if(data.fdate && data.fdate != '' && data.tdate && data.tdate != ''){
+                const fDate = moment(data.fdate).format('YYYY-MM-DD')+' 00:00:00';
+                const tDate = moment(data.tdate).format('YYYY-MM-DD')+' 23:59:59';
+                cnd += ` AND (bdate BETWEEN '${fDate}' AND '${tDate}')`;
+              }
+
+              if(data.pType == 'admin'){
+                sql = "SELECT sum(amt) amt,SUM(price) price, DATE(bdate) dt FROM `"+data.gCode+"` "+cnd+" GROUP BY DATE(bdate) ORDER BY bdate ASC";
+                
+              }else{
+                sql = "(SELECT sum(amt) amt,SUM(price) price, DATE(bdate) dt FROM `"+data.gCode+"` AS R  INNER JOIN `user` U1 ON U1.id = R.user_id INNER JOIN `user` U2 ON U1.pid = U2.id "+cnd+" AND U2.id ="+data.pId+" GROUP BY DATE(bdate) ORDER BY bdate ASC)";
+                if(data.pType != 'distributer'){
+                  sql += " UNION ";
+                  sql += "(SELECT sum(amt) amt,SUM(price) price, DATE(bdate) dt FROM `"+data.gCode+"` AS R INNER JOIN `user` U1 ON U1.id = R.user_id INNER JOIN `user` U2 ON U1.pid = U2.id "+cnd+" AND U2.pid ="+data.pId+" GROUP BY DATE(bdate) ORDER BY bdate ASC)";
+                  if(data.pType != 'super'){
+                    sql += " UNION ";
+                    sql += "(SELECT sum(amt) amt,SUM(price) price, DATE(bdate) dt FROM `"+data.gCode+"` AS R INNER JOIN `user` U1 ON U1.id = R.user_id INNER JOIN `user` U2 ON U1.pid = U2.id INNER JOIN `user` U3 ON U2.pid = U3.id "+cnd+" AND U3.pid ="+data.pId+" GROUP BY DATE(bdate) ORDER BY bdate ASC)";
+                    
+                  }
+                }
+              }
+              
+              let t = await commonObj.customSQL(sql);
+              result(t);
+            }else{
+              result({SUCCESS:false,MESSAGE:'err'});
+            }
+          }else if(data.grant_type == 'bet_log_name'){
+            if(data.pType != 'user'){
+              let sql = " ";
+              let cnd = " WHERE GM.game_code='"+data.gCode+"' ";
+
+              if(data.uId && data.uId != ''){
+                cnd += ` AND r.user_id = '${data.uId}' `;
+              }
+              if(data.fdate && data.fdate != '' && data.tdate && data.tdate != ''){
+                const fDate = moment(data.fdate).format('YYYY-MM-DD')+' 00:00:00';
+                const tDate = moment(data.tdate).format('YYYY-MM-DD')+' 23:59:59';
+                cnd += ` AND (R.bdate BETWEEN '${fDate}' AND '${tDate}')`;
+              }
+
+              if(data.pType == 'admin'){
+                sql = "SELECT sum(amt) amt,SUM(price) price, GM.name name FROM `"+data.gCode+"` AS R INNER JOIN `game_inplay` AS GM ON GM.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id LEFT JOIN `user` U2 ON U1.pid = U2.id "+cnd+" GROUP BY GM.name ORDER BY GM.name ASC";
+                
+              }else{
+                sql = "(SELECT sum(amt) amt,SUM(price) price, GM.name name FROM `"+data.gCode+"` AS R INNER JOIN `game_inplay` AS GM ON GM.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id INNER JOIN `user` U2 ON U1.pid = U2.id "+cnd+" AND U2.id ="+data.pId+" GROUP BY GM.name ORDER BY GM.name ASC)";
+                if(data.pType != 'distributer'){
+                  sql += " UNION ";
+                  sql += "(SELECT sum(amt) amt,SUM(price) price, GM.name name FROM `"+data.gCode+"` AS R INNER JOIN `game_inplay` AS GM ON GM.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id INNER JOIN `user` U2 ON U1.pid = U2.id "+cnd+" AND U2.pid ="+data.pId+" GROUP BY GM.name ORDER BY GM.name ASC)";
+                  if(data.pType != 'super'){
+                    sql += " UNION ";
+                    sql += "(SELECT sum(amt) amt,SUM(price) price, GM.name name FROM `"+data.gCode+"` AS R INNER JOIN `game_inplay` AS GM ON GM.id=R.game_id INNER JOIN `user` U1 ON U1.id = R.user_id INNER JOIN `user` U2 ON U1.pid = U2.id INNER JOIN `user` U3 ON U2.pid = U3.id "+cnd+" AND U3.pid ="+data.pId+" GROUP BY GM.name ORDER BY GM.name ASC)";
+                    
+                  }
+                }
+              }
+              
+              let t = await commonObj.customSQL(sql);
+              result(t);
+            }else{
+              result({SUCCESS:false,MESSAGE:'err'});
+            }
           }else if(data.grant_type == 'user'){
             if(data.pType != 'user'){
               let sql = " ";
