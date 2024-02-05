@@ -216,7 +216,7 @@ exports.init = {
           }
           sql = `INSERT INTO ${type} (${key.toString()}) VALUES( ${val.toString()});`;
         }
-        
+        console.log(sql)
         db.query(sql, function(err) {
             if (err) {
               result({SUCCESS:false,MESSAGE:err.message});
