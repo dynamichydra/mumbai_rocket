@@ -208,8 +208,9 @@ var DM_CORE = (function () {
       `);
       $('.topWelcomeText').on('click','.fetchBalance',async function(){
         $('.userBalance').html('-----');
-        let data = await DM_GENERAL.userData(auth.config.id);
-        $('.userBalance').html(data.MESSAGE.balance);
+
+        let data = await DM_GENERAL.updateUserBalance(auth.config.id);
+        $('.userBalance').html(Math.round(data.MESSAGE[0].bal));
       })
   }
   

@@ -147,7 +147,7 @@ eagleSuper.prototype.generateResult = async function (data) {
       await sql.startTransaction();
       let t = await sql.setData('game_inplay',{'id':inPlay.id,'status':'2','result_one':data.num,'result_two':data.single});
       if(t.SUCCESS){
-        t = await sql.customSQL("CALL setFatafatResult("+inPlay.id+",'"+_.code+"','"+_.price.num+"','"+_.price.single+"')");
+        t = await sql.customSQL("CALL setFatafatResult("+inPlay.id+",'"+_.code+"','"+_.price.patti+"','"+_.price.single+"')");
         if(!t.SUCCESS){
           errorFound = true;
         }

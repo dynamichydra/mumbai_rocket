@@ -44,10 +44,8 @@
 
   async function fetchBalance(){
     let id = $(this).attr('data-id');
-    let cntr = $(this).closest('tr');
     if(id){
       let data = await DM_GENERAL.updateUserBalance(id);
-      console.log(data)
       if(data.SUCCESS){
         for(let i in users){
           if(users[i].id == id){
