@@ -50,6 +50,22 @@ const DM_GENERAL = (function () {
     });
   }
 
+  function updateUserBalance(id){
+    return new Promise(async function (result) {
+      if(!id){
+        result(null);
+        return;
+      }
+
+      backendSource.customRequest('auth', null, {
+        user_id: id,
+        grant_type: 'updateBalance'
+      }, function (data) {
+        result(data);
+      });
+    });
+  }
+
   function changePassword(id,opwd,npwd,cpwd,cb){
     backendSource.customRequest('auth', id, {
       oPwd: opwd,
@@ -106,6 +122,7 @@ const DM_GENERAL = (function () {
     createTags,
     userData,
     changePassword,
+    updateUserBalance,
     getGame
   }
 

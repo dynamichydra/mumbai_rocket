@@ -38,7 +38,26 @@
     $('#sitePopup').on('click','.withdrawBtn',withdrawSave);
     $('#sitePopup').on('change','.uType',typeChange);
     $('#tblUser').on('click','.itemBtn',getCurUser);
+    $('#tblUser').on('click','.fetchBalance',fetchBalance);
     $('#backResult').on('click',backUser);
+  }
+
+  async function fetchBalance(){
+    let id = $(this).attr('data-id');
+    let cntr = $(this).closest('tr');
+    if(id){
+      let data = await DM_GENERAL.updateUserBalance(id);
+      console.log(data)
+      if(data.SUCCESS){
+        for(let i in users){
+          if(users[i].id == id){
+            users[i].balance = Math.round(data.MESSAGE[0].bal);
+            $(this).closest('tr').find('.transBtn').show();
+            $(this).closest('td').html(users[i].balance);
+          }
+        }
+      }
+    }
   }
 
   async function backUser(){
@@ -470,7 +489,7 @@
                 <td>${e.type}</td>
                 <td class="${e.status==1?'enable':'disable'}">${e.status==1?'Enable':'Disable'}</td>
                 <td>${e.type=='user'?'-':e.percentage}</td>
-                <td>${e.balance}</td>
+                <td><span class="fetchBalance" data-id="${e.id}">Fetch</span></td>
                 <td style="display:flex;">
                   <a class="actionBtn" href="#/report/transfer/${e.id}"><i class="bi bi-arrow-left-right"></i></a>
                   <a class="actionBtn" href="#/pl/index/${e.id}"><i class="bi bi-graph-up-arrow"></i></a>
@@ -478,7 +497,7 @@
                     <a class="actionBtn" target="_BLANK" href="#/report/user/${e.ph}">Log</a>`:``}
                   
                   ${selectUser==auth.config.id ?`
-                  <span class="actionBtn" data-moneyid="${e.id}"><i class="bi bi-cash-stack"></i></span>
+                  <span class="actionBtn transBtn" data-moneyid="${e.id}" style="display:none;"><i class="bi bi-cash-stack"></i></span>
                   <span class="actionBtn" data-editid="${e.id}"><i class="bi bi-pencil-square"></i></span>
                   <span class="actionBtn" data-statusid="${e.id}"><i class="bi ${e.status==1?'bi-lock':'bi-unlock'}"></i></span>
                   `:``}

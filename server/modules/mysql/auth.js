@@ -61,6 +61,10 @@ exports.init = {
               login_time:0
             });
             result({SUCCESS:true,MESSAGE:'ok'});
+            //type update balance
+          }else if(data.grant_type == 'updateBalance'){
+            let t = await commonObj.customSQL("SELECT `getUserBalance`("+data.user_id+") AS `bal`;");
+            result(t);
             //type register
           }else if(data.grant_type == 'register'){
             if(!data.ph || data.ph ==''){

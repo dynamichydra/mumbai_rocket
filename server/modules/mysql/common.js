@@ -167,6 +167,7 @@ exports.init = {
       let __ = this;
 
       return new Promise(async function (result) {
+        console.log(sql);
         db.query(sql, function(err,rows) {
             if (err) {
               result({SUCCESS:false,MESSAGE:err.message});

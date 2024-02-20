@@ -144,105 +144,19 @@ mumbaiRocket.prototype.generateResult = async function (data) {
     if(res.SUCCESS && res.MESSAGE.id){
       let inPlay = res.MESSAGE;
       await sql.startTransaction();
-      
-      let oldWin = await sql.getData(_.code, {'where':[
-        {'key':'game_id','operator':'is','value':inPlay.id},
-        {'key':'price','operator':'higher','value':0}
-      ]});
-      if(oldWin.SUCCESS && oldWin.MESSAGE.length>0){
-        let count = 0;
-        for(const item of oldWin.MESSAGE){
-          let t = await sql.setData(_.code,{
-            'id':item.id,
-            'price':0,
-            'status':0});
-          if(!t.SUCCESS){
-            errorFound = true;
-          }
-          let user = await sql.getData('user', {where:[
-            {key:"id",operator:"is", value:item.user_id}
-          ]});
-          let bal = user.MESSAGE.balance - item.price;
-          t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
-          if(!t.SUCCESS){
-            errorFound = true;
-          }
-          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+item.price+"', ref_no='"+item.id+"',description='"+_.code+" win return - bal: "+bal+"' ";
-          t = await sql.customSQL(insertSql);
-          if(!t.SUCCESS){
-            errorFound = true;
-          }
-        }
-      }
-
-      res = await sql.getData(_.code, {'where':[
-        {'key':'game_id','operator':'is','value':inPlay.id},
-        {'key':'number','operator':'is','value':data.num}
-      ]});
-      if(res.SUCCESS && res.MESSAGE.length>0){
-        let count = 0;
-        for(const item of res.MESSAGE){
-          let tP = item.amt * _.price.patti;
-          let t = await sql.setData(_.code,{
-            'id':item.id,
-            'price':tP,
-            'status':1});
-          if(!t.SUCCESS){
-            errorFound = true;
-          }
-          let user = await sql.getData('user', {where:[
-            {key:"id",operator:"is", value:item.user_id}
-          ]});
-          let bal = user.MESSAGE.balance +tP;
-          t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
-          if(!t.SUCCESS){
-            errorFound = true;
-          }
-          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+tP+"', ref_no='"+item.id+"',description='"+_.code+" win - bal: "+bal+"' ";
-          t = await sql.customSQL(insertSql);
-          if(!t.SUCCESS){
-            errorFound = true;
-          }
-        }
-      }
-
-      res = await sql.getData(_.code, {'where':[
-        {'key':'game_id','operator':'is','value':inPlay.id},
-        {'key':'number','operator':'is','value':data.single}
-      ]});
-      if(res.SUCCESS && res.MESSAGE.length>0){
-        let count = 0;
-        for(const item of res.MESSAGE){
-          let tP = item.amt * _.price.single;
-          let t = await sql.setData(_.code,{
-            'id':item.id,
-            'price':tP,
-            'status':1});
-          if(!t.SUCCESS){
-            errorFound = true;
-          }
-          let user = await sql.getData('user', {where:[
-            {key:"id",operator:"is", value:item.user_id}
-          ]});
-          let bal = user.MESSAGE.balance +tP;
-          t = await sql.customSQL("UPDATE user SET balance = '"+bal+"' WHERE id ="+item.user_id);
-          if(!t.SUCCESS){
-            errorFound = true;
-          }
-          let insertSql = "INSERT INTO transaction_log SET id='RW-"+Date.now()+""+(count++)+"."+item.user_id+"', user_id="+item.user_id+",amt='"+tP+"', ref_no='"+item.id+"',description='"+_.code+" win - bal: "+bal+"' ";
-          t = await sql.customSQL(insertSql);
-          if(!t.SUCCESS){
-            errorFound = true;
-          }
-        }
-      }
-
       let t = await sql.setData('game_inplay',{'id':inPlay.id,'status':'2','result_one':data.num,'result_two':data.single});
-      if(!t.SUCCESS){
+      if(t.SUCCESS){
+        t = await sql.customSQL("CALL setFatafatResult("+inPlay.id+",'"+_.code+"','"+_.price.num+"','"+_.price.single+"')");
+        if(!t.SUCCESS){
+          errorFound = true;
+        }
+      }else{
         errorFound = true;
       }
+
       if(errorFound){
         await sql.rollbackTransaction();
+        errorFound = true;
       }else{
         await sql.commitTransaction();
       }
