@@ -17,8 +17,6 @@ let mysqlPool = mysql.createPool({
   database: config.get('db.mysql.dbname')
 });
 
-
-
 exports.init = {
   tableConfig:config.get('TABLE_DEFINITION'),
   checkColumnExists: function(type, column){
